@@ -1,0 +1,6 @@
+. /etc/confluent/docker/bash-config
+
+# Ensure that the config location is writable.
+dub path /etc/kafka-connect/ writable
+
+dub template "/etc/confluent/docker/log4j.properties.template" "/etc/kafka/connect-log4j.properties"

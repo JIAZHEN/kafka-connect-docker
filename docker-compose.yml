@@ -1,0 +1,35 @@
+version: "3.9"
+services:
+  kafka-connect:
+    image: confluentinc/cp-kafka-connect-base:6.1.1
+    container_name: kafka-connect
+    ports:
+      - 8083:8083
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: localhost:29092
+      CONNECT_REST_PORT: 8083
+      CONNECT_GROUP_ID: "insight_json_events"
+      CONNECT_CONFIG_STORAGE_TOPIC: "insight_json_events_config"
+      CONNECT_OFFSET_STORAGE_TOPIC: "insight_json_events_offsets"
+      CONNECT_STATUS_STORAGE_TOPIC: "insight_json_events_status"
+      CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_REST_ADVERTISED_HOST_NAME: "localhost"
+      CONNECT_PLUGIN_PATH: /usr/share/java,/usr/share/confluent-hub-components,/data/connect-jars
+    volumes:
+      - $PWD/data:/data
+      - $PWD/file:/tmp/insight_json_events
+      - $PWD/jars:/etc/kafka-connect/jars
+    command:
+      - bash
+      - -c
+      - |
+        echo "Installing Connector"
+        confluent-hub install --no-prompt confluentinc/kafka-connect-s3:10.0.0
+        #
+        echo "Launching Kafka Connect worker"
+        /etc/confluent/docker/run &
+        #
+        sleep infinity
